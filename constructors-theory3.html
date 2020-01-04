@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>constructors_theory3</title>
+    <style>
+    body {
+        background-color: tan;
+        margin: 0;
+        font-family: Verdana, sans-serif;
+    }
+
+    .title {
+        color: red;
+        text-align: center;
+        font-weight:700;
+    }
+
+    .code-ex {
+        width: 50%;
+        font-family: sans-serif;
+        background-color: #bebebe;
+        font-size: large;
+        padding-left: 15px;
+        margin: 0 auto;
+    }
+
+    </style>
+</head>
+<body>
+
+    <h2 class="title">Конструкторы:  автоматическая привязка ко всем вновь создаваемым<br> 
+        объектам при помощи конструкторов целые цепочки прототипов
+    </h2>
+
+    <p> У нас есть некоторый конструктор студентов, который принимает на вход имя студента 
+        и записывает его в поле name. А также хранилище, в поле <em>.prototype</em> нашего конструктора 
+        мы поместили объект, который хотим видеть в качестве прототипа для всех вновь 
+        создаваемых студентов. Там сейчас один метод – <em>sleep</em>.
+    </p>
+
+    <script>
+        function Student1(name) {
+          this.name = name;
+        }
+        Student1.prototype.sleep = function () {
+            return ' zzZZZ'
+        };
+
+        var peter = new Student1("Peter");
+        console.info( peter.name + peter.sleep()); // Peter zzZZ
+    </script>
+
+    <p class="code-ex">
+        <code>
+            function Student(name) {<br>
+                this.name = name;<br>
+              }<br>
+            <b>Student.prototype.sleep</b> = function () {<br>
+                return ' zzZZZ'<br>
+            };<br>
+            <br>
+            var peter = new Student("Peter");<br>
+            console.info(peter.name + peter.sleep()); // Peter zzZZ<br>
+        </code>
+    </p>
+
+    <p>Допустим, у нас есть более абстрактный конструктор, который также имеет хранилище и 
+        в котором расположен другой метод – <em>getName</em>, который возвращает имя личности.
+    </p>
+
+    <script>
+        function Person1() {
+          this.type = 'human';
+        }
+        Person1.prototype.getName = function () {
+          return this.name;
+        }
+    </script>
+
+
+    <p class="code-ex">
+        <code>
+            function Person() {<br>
+              this.type = 'human';<br>
+            }<br>
+            Person.prototype.getName = function () {<br>
+              return this.name;<br>
+            }
+        </code>
+    </p>
+
+    <p>В данном случае нам бы не хотелось дублировать реализацию этого метода в хранилище конструктора студентов.
+        И хотелось бы воспользоваться этим методом из хранилища другого конструктора – конструктора Person. Для этого
+        мы можем пойти самым простым путем, и хранилище конструктора студентов сделать на основе хранилища 
+        конструктора Person. Для этого мы просто присваиваем в специальное поле <em>prototype</em> ссылку на хранилище
+        конструктора Person.
+    </p>
+
+    <script>Student1.prototype = Person1.prototype;</script>
+
+    <p class="code-ex">
+        <code>
+            <b>Student.prototype = Person.prototype;</b>
+        </code>
+    </p>
+
+    <p>Далее, мы можем расширить наше хранилище для студентов – методом <em>getName</em>.
+    </p>
+
+    <script>
+        Student1.prototype.sleep = function () {
+            return ' zzZZZ'
+        };
+
+        var billy = new Student1("Billy");
+        console.info(billy.getName()); // Billy
+        console.info(billy.name + billy.sleep()); // Billy zzZZ
+    </script>
+
+    <p class="code-ex" style="width:80%">
+        <code>
+          var billy = new Student("Billy");<br>
+          <br>
+          console.info(billy.type + billy.getName()); // Billy --> берём с Person.prototype<br>
+          console.info( billy.name + billy.sleep()); // Billy zzZZ --> берём сo Student.prototype
+        </code>
+    </p>
+
+    <p>Итак, мы можем создавать теперь новых студентов, которые, безусловно, будут иметь доступ к методу <em>sleep</em> 
+        из своего хранилища, ну и также будут иметь доступ к методу <em>getName</em>, которое изначально было в хранилище 
+        другого конструктора – конструктора Person.<br>
+        Данный способ имеет подводный камень. Если мы в своей программе попробуем использовать объекты 
+        другого типа, создадим для них конструктор и в хранилище этого конструктора запишем ссылку на 
+        то же самое хранилище, которое связано с конструктором Person, безусловно, наш новый объект 
+        – преподаватель – получит доступ к методам из этого хранилища Person. Но мы с удивлением обнаружим, 
+        что преподаватель получит доступ и к методам, которые мы ранее определили только для студентов, 
+        например к методу <em>sleep</em>. Не очень здорово, если преподаватель преснет прямо на лекции. 
+        Это происходит потому, что все три этих хранилища хранят сейчас ссылки на один и тот же объект, 
+        и наша цепочка прототипов выглядит примерно так:<br>
+        <b>billy --> Student.prototype === Person.prototype --> Object.prototype --> null</b><br> 
+        Мы можем добавлять какие-то методы специально  для студентов, но они будут появляться и во всех объектах, 
+        созданных на основе конструктора Person.
+    </p>
+
+    <script>
+        function Student2(name) {
+          this.name = name;
+        }
+
+        Student2.prototype = Person2.prototype;
+
+        Student2.prototype.sleep = function () {
+            return (console.info(' zzZZZ'));
+        };
+
+        function Person2() {
+          this.type = 'human';
+        }
+
+        Person2.prototype.getName = function () {
+          return this.name;
+        }
+
+        function Lecturer2(name) { 
+          this.name = name;
+        }
+        
+        Lecturer2.prototype = Person2.prototype;
+
+        var sergei = new Lecturer2('Sergei');
+
+        console.info(sergei.name); // Sergei
+        sergei.sleep(); //  zzzZZ --> взято со Student.prototype 
+    </script>
+    
+    <p class="code-ex">
+        <code>
+            function Student(name) {<br>
+              this.name = name;<br>
+            }<br>
+            <b>Student.prototype = Person.prototype;</b><br>
+            Student.prototype.sleep = function () {<br>
+                return (console.info('zzZZZ...'));<br>
+            };<br>
+            <br>
+            function Lecturer(name) {<br>
+              this.name = name;<br>
+            }<br>
+            <b>Lecturer.prototype = Person.prototype;</b><br>
+            var sergey = new Lecturer('Sergey');<br>
+            console.info(sergei.name); // Sergei<br>
+            sergey.sleep(); // zzzZZ --> взято со Student.prototype <br>
+        </code>
+    </p>
+    
+    <p>Это нежелательное поведение и нам бы хотелось, чтобы цепочка выглядела примерно так:<br>
+        <b>billy --> Student.prototype --> Person.prototype --> Object.prototype --> null</b><br>
+        Что бы мы могли безопасно добавлять методы, специфичные для студентов, не затрагивая хранилища 
+        более высокого уровня.<br>
+        Решить эту проблему нам поможет специальный метод <em><b>Object.create()</b></em><br>.
+        <br> 
+        Object.create() создаёт пустой объект, прототипом которого становится объект, переданный первым аргументом.<br>
+        <br> 
+        В нашем случае, вместо обычного присваивания, мы в хранилище для конструктора студентов будем записывать объект, 
+        который нам этот метод возвращает. И в качестве аргумента, объект, который мы хотим видеть в качестве прототипа для всех 
+        возвращаемых им объектов. Такой же трюк мы можем проделать и с конструктором преподавателя.<br>
+        Попробуем теперь создать нового преподавателя и вызвать у него метод, который мы определили только для студентов.
+    </p>
+
+    <script>
+        function Person3() {
+          this.type = 'human';
+        }
+        Person3.prototype.getName = function () {
+          return this.name;
+        }
+
+        function Student3(name) { 
+          this.name = name;
+        }
+        Student3.prototype.sleep = function () {};
+        Student3.prototype = Object.create(Person3.prototype);
+        
+
+        function Lecturer3(name) {
+          this.name = name;
+        };
+        Lecturer3.prototype = Object.create(Person3.prototype);
+
+        var ivahn = new Lecturer3('Ivahn');
+        ivahn.sleep(); // TypeError: ivahn.sleep is not a function
+    </script>
+
+    <p class="code-ex" style="width:60%">
+        <code>
+            function Person() {}<br>
+            Person.prototype.getName = function () {}<br>
+            <br>
+            function Student(name) {}<br>
+            Student.prototype.sleep = function () {}<br>
+            <b>Student.prototype = Object.create(Person.prototype);</b><br>
+            <br>
+            function Lecturer(name) {}<br>
+            <b>Lecturer.prototype = Object.create(Person.prototype);</b><br>
+            var ivahn = new Lecturer('Ivahn');<br>
+            <b>ivahn.sleep(); // TypeError: ivahn.sleep is not a function</b><br>
+        </code>
+    <p>
+     
+    <p> Благодаря методу <em>create</em>, мы увидим, что преподаватели не будут иметь доступ к методам, которые мы определили 
+        только для студентов. Этот метод помог нам построить правильные линейные цепочки прототипов.<br>
+        billy  --> Student.prototype  --> Person.prototype --> Object.prototype --> null<br>
+        ivahn --> Lecturer.prototype --> Person.prototype --> Object.prototype --> null
+    </p>
+
+    <p> Давайте разберем подробней, как этот метод работает внутри и почему он нам помог. Попробуем разобраться, как 
+        работает метод <em>create</em>, на яблоках. Итак, наш метод создает пустой объект, прототипом которого становится объект, 
+        переданный первым аргументом.<br>
+        Допустим, у нас есть прототип для фруктов, которые хранит единственное поле, которое говорит нам о том, что все 
+        фрукты полезные. И на основе этого прототипа фруктов мы будем создавать новые фрукты при помощи метода <em>create</em>, 
+        передавая в качестве аргумента наш прототип. Так мы можем создать яблоко и проверить, что оно действительно полезное, 
+        несмотря на то, что этого поля у самого яблока нет. Оно есть у его прототипа.
+    </p>
+
+    <script>
+        var fruitProto = { 
+            isUsefull: true
+        }
+        var apple = Object.create(fruitProto);
+
+        console.log(apple.isUsefull); // true
+    </script>
+
+    <p class="code-ex">
+        <code>
+            var fruitProto = {<br>
+                isUsefull: true<br>
+            }<br>
+            <b>var apple = Object.create(fruitProto);<br>
+            apple.isUsefull; // true</b><br>
+        </code>
+    </p>
+
+    <p>Внутри метод create устроен достаточно просто. Он создает простейшие конструкторы из возможных, 
+        а именно: пустую функцию. Далее, в хранилище этого конструктора он записывает ссылку на тот объект, 
+        который мы передаем в качестве первого аргумента, тот объект, который хотим видеть в качестве 
+        прототипа для всех создаваемых объектов. Далее, он при помощи этого конструктора создает новый объект 
+        и возвращает его. Таким образом, все вновь создаваемые объекты будут иметь в качестве прототипа тот 
+        объект, который мы передаем первым аргументом.
+    </p>
+    
+    <p class="code-ex">
+        <code>
+            var apple = Object.create(fruitProto);<br>
+            <br>
+            Object.create = function(prototype) {<br>
+            // Простейший конструктор пустых объектов function EmptyFunction() {};<br>
+            EmptyFunction.prototype = prototype;<br>
+                return new EmptyFunction();<br>
+            };<br>
+        </code>
+    </p>
+
+    <p>В метод create мы можем передавать не только объекты, но и, например, значение null. В этом случае 
+        мы создадим объект, в качестве прототипа которого не будет выступать ни один из объектов, даже 
+        глобальный прототип для всех объектов. И мы не получим доступ к методам из этого глобального 
+        прототипа, а получим объект с самой короткой цепочкой прототипов на свете.
+    </p>
+
+    <p class="code-ex">
+        <code>
+            var foreverAlone = Object.create(null);<br>
+            foreverAlone.hasOwnProperty; // undefined<br>
+        </code>
+    </p>
+
+    <p>При этом, сама цепочка выглядит вот так: foreverAlone --> null</p>
+        
+    <p>Теперь понятно, каким образом метод <em>create</em> помогает нам связать два хранилища разных 
+        конструкторов так, чтобы они не ссылались на один и тот же объект. И хранилище для конструктора 
+        студентов будет представлять из себя отдельный объект, но во внутреннем поле prototype которого 
+        лежит ссылка на другое хранилище – хранилище конструктора Person. Далее мы можем расширить хранилище 
+        для студентов специфичными для них методами.
+    </p>
+
+    <p class="code-ex">
+        <code>
+            Student.prototype = Object.create(Person.prototype);<br>
+            <br>
+            Object.create = function(prototype) {<br>
+                function EmptyFunction() {};<br>
+                EmptyFunction.prototype = prototype;<br>
+                return new EmptyFunction();<br>
+            };<br>
+            <b>Student.prototype = {<br>
+            [[Prototype]]: 'Person.prototype'<br>
+            }</b><br>
+        </code>
+    </p>
+
+    <p> И здесь мы допустили ту же самую ошибку, что и ранее. Мы полностью перезаписали хранилище студентов 
+        и забыли о поле конструктора. Давайте его вернем. Достаточно просто присвоить в него ссылку на 
+        функцию. Итоговое решение нашей задачи выглядит примерно так:
+    </p>
+
+    <p class="code-ex">
+        <code>
+            function Student(name) {<br>
+                this.name = name;<br>
+            }<br>
+            Student.prototype = Object.create(Person.prototype);<br>
+            <b>Student.prototype.sleep = function () {};</b><br>
+            Student.prototype.constructor = Student<br>
+            var billy = new Student("Billy");<br>
+        </code>
+    </p>
+
+</body>
+
+</html>

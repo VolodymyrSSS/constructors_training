@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>constructors_theory6</title>
+    <style>
+    body {
+        background-color: tan;
+        margin: 0;
+        font-family: Verdana, sans-serif;
+    }
+
+    .title {
+        color: red;
+        text-align: center;
+        font-weight:700;
+    }
+
+    .code-ex {
+        width: 50%;
+        font-family: sans-serif;
+        background-color: #bebebe;
+        font-size: large;
+        padding-left: 15px;
+        margin: 0 auto;
+    }
+
+    </style>
+</head>
+<body>
+
+  <h2 class="title">Конструкторы: вызов затеняемого метода в затеняющем</h2>
+
+  <p> Мы уже познакомились с вами с эффектом затенения. Что это за эффект? Мы можем на объекте определить метод или поле 
+    с тем же самым именем, что и в прототипе. При этом интерпретатор сохранит реализацию метода и значение поля в прототипе 
+    нетронутым и создаст копию этого метода или поля на стороне объекта.<br>
+    Давайте покажем, каким образом мы можем вызывать затеняемый метод в затеняющем. Допустим, у нас есть некоторый конструктор 
+    Person, конструктор личностей, который на вход принимает имя этих личностей и кладет в поле name. Также мы определяем 
+    прототип для всех личностей с методом <em>getName</em>, который возвращает это имя. Положим этот прототип в хранилище 
+    конструктора Person. Далее мы захотим использовать в нашей программе объекты другого типа, например, студентов и создадим 
+    конструктор для них. Прототипом для них мы сделаем объект на основе прототипа для личностей, но захотим изменить метод 
+    <em>getName</em>. Нам не хочется дублировать тот прекрасный код, который есть в методе <em>getName</em> прототипа личностей, 
+    а лишь хотим немножечко его дополнить и добавлять к нему некую строку, например, мы хотим не просто возвращать имя, а 
+    возвращать «студент такое имя». Каким образом мы можем это сделать?
+  </p>
+
+  <script>
+    function Student(name) { 
+      this.name = name;
+    }
+
+    function Person(name) { 
+      this.name = name;
+    }
+
+    Person.prototype.getName = function () {
+      return this.name;
+    }
+  </script>
+
+  <p class="code-ex">
+    <code>
+      function Student(name) {<br>
+        this.name = name;<br>
+      }<br>
+      <br>
+      function Person(name) {<br>
+        this.name = name;<br>
+      }<br>
+      <br>
+      <b>Person.prototype.getName</b> = function () {<br>
+      return this.name;<br>
+    }<br>
+    </code>
+  </p>
+
+  <p>Вначале нам может показаться, что мы можем вызвать просто метод <em>getName</em> из прототипа Person внутри 
+    метода <em>getName</em> прототипа для студентов. Но в этом случае произойдет рекурсивный вызов того же самого 
+    метода. И интерпретатор нам скажет, что количество вызовов заполнило весь стек.
+  </p>
+
+  <script>
+    Student.prototype = Object.create(Person.prototype);
+    Student.prototype.getName = function () {
+      return 'Student ' + this.getName(); };
+
+    var billy = new Student('Billy');
+    console.log(billy.getName());
+  </script>
+
+
+  <p class="code-ex" style="width:70%">
+    <code>
+      Student.prototype = Object.create(Person.prototype);<br>
+      Student.prototype.getName = function () {<br>
+        <b>return 'Student ' + this.getName();</b><br>
+      };<br>
+      var billy = new Student('Billy');<br>
+      console.log(billy.getName()); // <b>RangeError: Maximum call stack size exceeded</b><br>
+    </code>
+  </p>
+
+  <p>Почему это происходит? Когда мы вызываем метод <em>getName</em> у созданного нами студента, например, Billy, внутри этого 
+    метода this будет ссылаться, собственно, на этого самого студента. Так как метода <em>getName</em> у самого Billy нет, он пойдет 
+    искать его в прототипе и найдет метод в прототипе, который хранится в хранилище конструктора Student в поле Student.prototype.
+    Фактически мы вызовем метод... Метод будет вызывать сам себя.
+  </p>
+
+  <p>Каким образом мы можем решить эту проблему? Самое простое — использовать другое название метода вместо эффекта затенения. 
+    В этом случае все будет работать. Мы будем вызывать метод с другим названием, например, <em>getStudentName</em>, заходить внутрь 
+    этого метода, this внутри него будет по-прежнему ссылаться на объект Student, то есть на Billy, попробуем найти у Billy 
+    метод getName, не найдем его там, пройдем по цепочке прототипов в объект, который хранится в хранилище конструктора студентов 
+    Student.prototype. И там мы этого метода не найдем, проследуем дальше по цепочке прототипов и уже перейдем в хранилище, 
+    которое хранится в конструкторе Person. Там мы этот метод находим, спокойно его вызываем, возвращаем имя студента, добавляем к 
+    нему наш необходимый префикс, и все работает, как нужно.
+  </p>
+
+  <script>
+    function Student2(name) { 
+      this.name = name;
+    }
+    Student2.prototype = Object.create(Person.prototype);
+
+    Student2.prototype.getStudentName = function () {
+      return 'Student ' + this.getName(); 
+      };
+    var kira = new Student2('Kira');
+    console.info(kira.getStudentName());
+  </script>
+
+  <p class="code-ex">
+    <code>
+      function Person(name) {<br>
+        this.name = name;<br>
+      }<br>
+      <br>
+      Person.prototype.getName = function () {<br>
+        return this.name;<br>
+      }<br>
+      <br>
+      Student.prototype = Object.create(Person.prototype);<br>
+      Student.prototype.<b>getStudentName</b> = function () {<br>
+        return 'Student ' + this.getName(); };<br>
+      var kira = new Student('Kira');<br>
+      console.info(<b>kira.getStudentName()</b>); // Student Kira<br>
+    </code>
+  </p>
+
+  <p>
+    Но такой метод решения этой проблемы выглядит немножко не элегантно. Более элегантным способом будет использование метода
+    <em><b>call</b></em>. Мы можем напрямую в затеняющем методе вызывать затеняемый при помощи этого метода call, но передавать 
+    туда текущий контекст. А текущий контекст будет ссылаться на создаваемого объекта конструктора студентов, а именно на студента. 
+  </p>
+
+  <script>
+    function Student3(name) { 
+      this.name = name;
+    }
+    Student3.prototype = Object.create(Person.prototype);
+
+    Student3.prototype.getName = function () {
+      return 'Student ' + Person.prototype.getName.call(this);
+    };
+
+    var simon = new Student3('Simon');
+    console.info(simon.getName());
+  </script>
+
+  <p class="code-ex">
+    <code>
+      function Person(name) {<br>
+        this.name = name;<br>
+      }<br>
+      Person.prototype.getName = function () {<br>
+      return this.name;<br>
+      }<br>
+      <br>
+      Student.prototype = Object.create(Person.prototype);<br>
+      Student.prototype.getName = function () {<br>
+        return 'Student ' + <b>Person.prototype.getName.call(this);</b><br>
+      };<br>
+      var simon = new Student('Simon');<br>
+      console.info(simon.getStudentName()); // Student Simon<br>
+    </code>
+  </p>
+
+  <p>Таким образом мы вызываем затеняемый метод от лица этого самого студента, спокойно получаем имя этого студента и добавляем к 
+    нему префикс student. Все работает, как нужно.
+  </p>
+
+
+</body>
+
+</html>

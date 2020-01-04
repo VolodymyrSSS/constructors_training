@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>constructors-ask11</title>
+    <style>
+    body {
+        background-color: tan;
+        margin: 0;
+        font-family: Verdana, sans-serif;
+    }
+
+    .title {
+        color: red;
+        text-align: center;
+        font-weight:700;
+    }
+
+    .task{
+        width: 50%;
+        padding: 15px 25px;
+        color: navy;
+        background-color: #e2e2e2;
+        margin: 35px auto;
+    }
+
+    .code-ex {
+        width: 50%;
+        font-family: sans-serif;
+        background-color: #bebebe;
+        font-size: large;
+        padding-left: 15px;
+        margin: 0 auto;
+    }
+
+    p {
+        width: 80%;
+        margin: 0 auto;
+    }
+    </style>
+</head>
+<body>
+
+    <h2 class="title">Конструкторы, задача</h2>
+
+    <h4 class="task">Как верно использовать конструктор животных внутри конструктора котиков, 
+        чтобы котик Мурзик не остался без имени и мог мурлыкать?</h4>
+
+    <p class="code-ex">
+        <code>
+            function Animal(name) {<br>
+                this.name = name;<br>
+            }<br>
+            <br>
+            function Cat(name) {<br>
+                // ?<br>
+            }<br>
+            <br>
+            Cat.prototype.purr = function() {}; - добавляет возможность мурлыкать<br>
+            <br>
+            var murzik = new Cat('Murzik');<br>
+            <br>
+            console.log(murzik.name);<br>
+            <br>
+        </code>
+    </p>
+
+    <script>
+        function Animal(name) {
+            this.name = name;
+        }
+
+        function Cat(name) {
+            Animal.call(this, name);
+        }
+
+        // Добавляет возможность мурлыкать
+        Cat.prototype.purr = function() {
+            return "purr, purrr, purrrr"
+        }; 
+
+        var murzik = new Cat('Murzik');
+
+        console.log(murzik.name);
+        console.log(murzik.purr());
+    </script>
+
+    
+    <p>
+        Вариант1:<br>
+        <b>function Cat(name) {<br>
+            return new Animal(name);<br>
+        }</b><br>
+        Ответ: <b>no</b>:так как murzik.name; // Murzik; и murzik.purr() // murzik.purr is not a function<br> 
+        <br>
+
+        Вариант2:<br>
+        <b>function Cat(name) {<br>
+            Animal.call(this, name);<br>
+        }</b><br>
+        Ответ: <b>yes</b>: так как murzik.name; // Murzik;  и murzik.purr() // purr, purrr, purrrr<br>
+        <br>
+
+        Вариант3:<br>
+        <b>function Cat(name) {<br>
+            Animal.bind(this, name);<br>
+        }</b><br>
+        Ответ: <b>no</b>: так как murzik.name; // undefined;  и murzik.purr() // purr, purrr, purrrr<br>
+        <br>
+
+        Вариант4:<br>
+        <b>function Cat(name) {<br>
+            Animal(name);<br>
+        }</b><br>
+        Ответ: <b>no</b>: так как murzik.name; // undefined;  и murzik.purr() // purr, purrr, purrrr<br>
+        <br>
+
+    </p>
+    
+
+</body>
+
+</html>

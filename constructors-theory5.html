@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>constructors_theory5</title>
+    <style>
+    body {
+        background-color: tan;
+        margin: 0;
+        font-family: Verdana, sans-serif;
+    }
+
+    .title {
+        color: red;
+        text-align: center;
+        font-weight:700;
+    }
+
+    .code-ex {
+        width: 50%;
+        font-family: sans-serif;
+        background-color: #bebebe;
+        font-size: large;
+        padding-left: 15px;
+        margin: 0 auto;
+    }
+
+    </style>
+</head>
+<body>
+
+    <h2 class="title">Конструкторы: решение проблемы дублирования кода в конструкторах
+    </h2>
+
+    <p> Как бороться с дублированием кода в конструкторах. У нас есть конструктор студентов, конструктор 
+        преподавателей и конструктор личностей. Если мы посмотрим на конструкторы преподавателей и студентов, 
+        мы увидим, что они похожи и выполняют одинаковую работу: принимают в качестве аргумента имя студента 
+        или преподавателя и сохраняют его в поле name. Нам бы хотелось избежать этого дублирования.
+    </p>
+
+    <script>
+        function Student1(name) {
+          this.name = name;
+        };
+
+        function Lecturer1(name) {
+          this.name = name
+        };
+
+        function Person1(name) {
+          this.type = "human";
+        };
+
+        var nelson = new Student1("Nelson");
+        var sergei = new Lecturer1("Sergei");
+        var person = new Person1("Person");
+
+        console.log(nelson.name);
+        console.log(sergei.name);
+        console.log(person.type);
+    </script>
+
+    <p class="code-ex">
+        <code>
+            function Student1(name) {<br>
+                <b>this.name = name;</b><br>
+              }<br>
+              <br>
+              function Lecturer1(name) {<br>
+                <b>this.name = name;</b><br>
+              }<br>
+              <br>
+              function Person1(name) {<br>
+                this.type = "human";<br>
+              }<br>
+              <br>
+              var nelson = new Student1("Nelson"); // Nelson<br>
+              var sergei = new Lecturer1("Sergei"); // Sergei<br>
+              var person = new Person1("Person"); // human<br>
+        </code>
+    </p>
+
+    <p>Проще всего — вынести этот общий код в отдельный конструктор. Лучше всего для нас подойдет 
+      конструктор Person. Давайте просто перенесем туда строчку, которая сохраняет имя студента или 
+      преподавателя в конструктор Person, вот таким образом. Далее, если мы сейчас попытаемся создать 
+      нового студента и передадим туда имя, мы не получим желаемого результата, так как мы забрали 
+      этот код из конструктора для студентов и переместили его в конструктор для личностей.
+    </p>
+
+    <script>
+        function Student2(name) {};
+
+        function Person2(name) {
+          this.type = 'human',
+          this.name = name
+        };
+
+        var samuil = new Student2("Samuil");
+
+        console.log(samuil.name);
+    </script>
+
+
+    <p class="code-ex">
+        <code>
+            function Student(name) {}<br>
+            <br>
+            function Person() {<br>
+              this.type = 'human';<br>
+              <b>this.name = name;</b>
+            }<br>
+            <br>
+            var samuil = new Student('Samuil');<br>
+            <br>
+            console.log(samuil.name); // <b>undefined</b>
+        </code>
+    </p>
+
+    <p>Поэтому нам необходимо немножечко изменить реализацию конструктора студентов и добавить туда 
+        вызов конструктора личностей. Мы можем это сделать при помощи метода <em><b>call</b></em>. 
+        Вызываем наш конструктор личностей при помощи этого метода и в качестве контекста передаем 
+        туда this, а в качестве второго аргумента передаем имя создаваемого нами студента.
+    </p>
+
+    <script>
+        function Student3(name) {
+            Person2.call(this, name);
+        }
+
+        var peter = new Student3("Peter");
+
+        console.log(peter.name);
+    </script>
+
+    <p class="code-ex" style="width:65%">
+        <code>
+            function Person(name) {<br>
+              this.type = 'human',<br>
+              this.name = name}<br>
+            <br>
+            function Student(name) {<br>
+              // Вызов одного конструктора внутри другого<br>
+              <b>Person.call(this, name);</b> - this ссылается на новый объект студента<br>
+            }<br>
+            var peter = new Student('Peter');<br>
+            console.info(peter.name);<br>
+        </code>
+    </p>
+    <p>
+        Благодаря тому, что в конструкторе this будет ссылаться на новый объект создаваемый, в нашем случае 
+        — на нового студента, мы вызовем конструктор Person с контекстом в виде этого студента, и таким 
+        образом передаваемое имя мы положим в поле name именно для студента, и все будет работать.
+    </p>
+
+</body>
+
+</html>

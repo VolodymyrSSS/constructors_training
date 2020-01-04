@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>constructors-ask10</title>
+    <style>
+    body {
+        background-color: tan;
+        margin: 0;
+        font-family: Verdana, sans-serif;
+    }
+
+    .title {
+        color: red;
+        text-align: center;
+        font-weight:700;
+    }
+
+    .task{
+        width: 50%;
+        padding: 15px 25px;
+        color: navy;
+        background-color: #e2e2e2;
+        margin: 35px auto;
+    }
+
+    .code-ex {
+        width: 50%;
+        font-family: sans-serif;
+        background-color: #bebebe;
+        font-size: large;
+        padding-left: 15px;
+        margin: 0 auto;
+    }
+
+    p {
+        width: 80%;
+        margin: 0 auto;
+    }
+    </style>
+</head>
+<body>
+
+    <h2 class="title">Конструкторы, задача</h2>
+
+    <h4 class="task">Какое значение будет хранить переменна obj?</h4>
+
+    <p class="code-ex">
+        <code>
+            var obj = Object.create(null);
+        </code>
+    </p>
+
+    <script>
+        var obj = Object.create(null);
+
+        console.log(obj); // {} - это объект
+
+        console.log(obj.__proto__ === Object.prototype); // false - значит что глобального прототипа нету
+
+        console.log(obj === null); // false
+
+        console.log(obj.hasOwnProperty); // undefined
+
+        console.log(obj.__proto__ === null); // false - значит что прототипа нету и значением не будет null
+
+        console.log(obj instanceof Object); // false
+    </script>
+
+    
+    <p>
+        Вариант1:<br>
+        <b>Объект у которого прототипом будет Object.prototype</b><br>
+        Ответ: <b>no</b>: так как мы создали объект, в качестве прототипа которого не будет выступать ни один из объектов, даже глобальный прототип для всех объектов.<br>
+        проверка: obj.__proto__ === Object.prototype; // false - глобального прототипа нету; также obj === null; // false 
+        <br>
+
+        Вариант2:<br>
+        <b>Объект с полем value и значением null</b><br>
+        Ответ: <b>no</b>: так как console.log(obj.hasOwnProperty); // undefined<br>
+        <br>
+
+        Вариант3:<br>
+        <b>Объект у которого не будет прототипа</b><br>
+        Ответ: <b>no</b>: так как obj.__proto__ === null; // false мы создали объект, в качестве прототипа которого не будет выступать ни один из объектов, даже глобальный прототип для всех объектов.<br>
+        <br>
+
+        Вариант4:<br>
+        <b>null</b><br>
+        Ответ: <b>yes</b>: так как obj instanceof Object; // false показало, что у объекта совсем нет прототипа, и во внутреннем поле prototype лежит значение null<br>
+        <br>
+
+        Вариант5:<br>
+        <b>undefined</b><br>
+        Ответ: <b>no</b>: так как console.log(obj.hasOwnProperty); // undefined - мы создали объект, в качестве прототипа которого не будет выступать ни один из объектов, даже глобальный прототип для всех объектов. И мы не получим доступ к методам из этого глобального прототипа<br>
+        <br>
+    </p>
+    
+
+</body>
+
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>constructors_theory7</title>
+    <style>
+    body {
+        background-color: tan;
+        margin: 0;
+        font-family: Verdana, sans-serif;
+    }
+
+    .title {
+        color: red;
+        text-align: center;
+        font-weight:700;
+    }
+
+    .code-ex {
+        width: 50%;
+        font-family: sans-serif;
+        background-color: #bebebe;
+        font-size: large;
+        padding-left: 15px;
+        margin: 0 auto;
+    }
+
+    </style>
+</head>
+<body>
+
+    <h2 class="title">Конструкторы:  cравнение трёх подходов к конструированию объектов:<br>
+        функции-конструкторы, метод create, «Классы»
+    </h2>
+
+    <p> Мы познакомились уже с классическим подходом конструирования объектов, и для этого нам понадобилось изучить достаточно 
+        много нового, познакомиться с оператором <b>new</b>, понять, как работает специальное поле <b>prototype</b> у конструкторов, и 
+        изучить работу метода <b>create</b>. Но для конструирования объектов и построения связей между ними достаточно лишь использовать 
+        только метод <b>create</b>. И сейчас я вам покажу как.
+    </p>
+
+    <p>Давайте снова попробуем создать конструктор для студентов. Для этого нам вновь понадобится ряд прототипов, выстроенных в 
+        цепочку. На этот раз мы воспользуемся только методом create и обычными объектами, так как любой прототип по факту — это 
+        обычный объект. Итак, для начала нам понадобится прототип личности. Создадим простой объект personProto и добавим туда 
+        метод getName, который будет возвращать имя нашей личности. На основе этого прототипа создадим более специфичный прототип 
+        уже для студентов. При помощи метода create мы свяжем два этих прототипа в цепочку. Далее мы можем расширить наш прототип 
+        для студентов уже специфичными для студентов методами, например, методом sleep.
+    </p>
+
+    <p class="code-ex">
+        <code>
+            var personProto = {<br>
+              getName: function () {<br>
+                return this.name; }<br>
+            };<br>
+            var studentProto = Object.create(personProto);<br>
+            <br>
+            studentProto.sleep = function () {};<br>
+        </code>
+    </p>
+
+    <p>Далее на основе прототипа для студентов мы уже будем создавать, собственно, студентов. Для этого снова воспользуемся методом 
+        create. Таким образом, благодаря этому методу мы встроим нашего студента в цепочку прототипов:<br>
+        <br>
+        <b>studentProto -->personProto</b>
+        <br>
+    </p>
+
+    <p class="code-ex">
+        <code>
+            var billy = Object.create(studentProto);
+        </code>
+    </p>
+
+    <p><b>billy --> studentProto --> personProto</b></p>
+
+    <p class="code-ex">
+        <code>
+            var billy = Object.create(studentProto);
+        </code>
+    </p>
+
+    <p>И далее всё, что нам останется, это только дополнить нашего студента полями, которые необходимы каждому конкретному 
+        студенту с конкретными значениями. В данном случае мы присваиваем нашему студенту в поле name имя. Зовут его billy.
+    </p>
+
+    <p class="code-ex">
+        <code>
+            billy.name = 'Billy';
+        </code>
+    </p>
+
+    <p>Благодаря такому подходу нам понадобилось значительно меньше строчек кода, чем в классическом, чтобы научить нашу 
+        программу создавать новые объекты студентов. Для создания нового студента нам необходимо написать всего две строчки.
+    </p>
+
+    <script>
+        var personProto = {};
+
+        personProto.getName = function () {
+            return this.name;
+        }
+
+        var studentProto = Object.create(personProto);
+        
+        studentProto.sleep = function () {
+            return 'zzZZZ...';
+        };
+
+        var billy = Object.create(studentProto);
+        
+        billy.name = 'Billy';
+
+        console.log(billy.getName()); // Billy
+        console.log(billy.sleep()); // zzZZZ...
+    </script>
+
+    <p class="code-ex">
+        <code>
+            var personProto = {};<br>
+            personProto.getName = function () { return this.name; }<br>
+            var studentProto = Object.create(personProto);<br>
+            studentProto.sleep = function () {};<br>
+            <b>var billy = Object.create(studentProto);</b><br>
+            <b>billy.name = 'Billy';</b><br>
+            console.log(billy.getName()); // Billy 
+            console.log(billy.sleep()); // zzZZZ...
+        </code>
+    </p>
+
+    <p>Но и здесь мы можем произвести улучшение и сократить создание объекта нового студента до одной строки. Для этого 
+        нам понадобится ещё одна возможность метода <em>create</em>, о которой я вам не рассказывал ранее, а именно — 
+        данный метод принимает не один аргумент, а два. В качестве второго аргумента вы можете передать необходимые поля 
+        с их начальными значениями и характеристиками, которые вы хотите видеть при создании объекта в итоговом объекте.
+    </p>
+
+    <p class="code-ex">
+        <code>
+            var apple = Object.create(fruit, {<br>
+                shape: { value: 'round', writable: false },<br>
+                color: { value: 'Green' },<br>
+                amount: { writable: true }<br>
+              });<br>
+            <br>
+            apple.amount = 'half';<br>
+        </code>
+    </p>
+
+    <p>Посмотрим, каким образом мы можем использовать данную возможность. Для того чтобы создавать наших студентов в одну 
+        строку, нам понадобится дополнительная функция-помощник, назовём её create и положим в наш прототип для студентов. 
+        Иногда такие функции называют фабриками — <b>фабриками объектов</b>. Данная функция будет на вход принимать в себя 
+        имя студента, а внутри себя вызывать метод <em>Object.create</em>, в качестве контекста передавать this и в качестве 
+        второго аргумента передавать набор полей, которые мы хотим видеть у студента, а именно: мы хотим у него видеть поле 
+        name, и мы сразу заполняем его тем, что нам приходит в фабрику. Таким образом мы можем создавать новых студентов в одну 
+        строчку, как и при классическом подходе при помощи оператора new. В данном случае мы просто вызываем наш метод create, 
+        который лежит в прототипе студента, передаём туда имя и получаем новый объект, нового студента с этим именем.
+    </p>
+
+    <script>
+        function Student(name) {
+            this.name = name;
+        }
+        var personProto2 = {};
+        personProto2.getName = function () { return this.name; }
+
+        var studentProto2 = Object.create(personProto2);
+        studentProto2.sleep = function () { return 'zzZZZ...'};
+        studentProto2.create = function (name) { 
+            return Object.create(this, {
+              name: { value: name }
+            });
+        }
+        var simon = studentProto2.create('Simon');
+        console.log(simon.getName());
+        console.log(simon.sleep());
+    </script>
+
+    <p class="code-ex">
+        <code>
+            var personProto = {};<br>
+            personProto.getName = function () { return this.name; }<br>
+            <br>
+            var studentProto = Object.create(personProto);<br>
+            studentProto.sleep = function () { return 'zzZZZ...'};<br>
+            <br>
+            studentProto.create = function (name) {<br>
+              return <b>Object.create(this, {</b> --> это фабрика объектов<br>
+                <b>name: { value: name }<br>
+              });</b><br>
+            }<br>
+            <b>var simon = studentProto.create('Simon');</b><br>
+            console.log(simon.getName()); // Simon<br>
+            console.log(simon.sleep()); // zzZZZ...<br>
+        </code>
+    </p>
+
+    <p>Какой же подход предпочесть? Первый, классический, при помощи оператора new или второй, при помощи метода create? 
+        Единого мнения, какой из этих подходов лучше, у разработчиков нет. Некоторым нравится первый подход, так как он 
+        напоминает им способ создания объектов в других языках программирования. Вторым нравится Object.create, так как 
+        он предлагает более лаконичный и простой подход к созданию объектов. Дискуссии не утихают до сих пор, и масло в 
+        огонь этих дискуссий подливает новая версия спецификаций, которая вводит новую синтаксическую конструкцию, 
+        а именно «классы».
+    </p>
+
+    <p> И вместо функций-конструкторов мы можем определить класс и на основе этого класса создавать новые объекты. Но я не зря 
+        обернул «классы» в двойные кавычки, так как под капотом это не более, чем обычные функции-конструкторы.
+    </p> 
+
+    <p class="code-ex">
+        <code>
+            function Student(name) { <br>
+                this.name = name;<br>
+            }<br>
+            
+            Student.prototype.getName = function () {<br>
+             return this.name; };<br>
+            <br>
+            the same as:<br>
+            <br>
+            class Student {<br>
+                constructor(name) {<br>
+                  this.name = name; }<br>
+                getName() {<br>
+                return this.name;}<br>
+            }<br>
+        </code>
+    </p>
+        
+    <p>У них также есть специальное поле prototype — хранилище для прототипов, для всех вновь создаваемых этим классом объектов.
+        Также если мы посмотрим тип классов, то мы увидим, что это обычная функция.
+    </p>
+
+    <p class="code-ex">
+        <code>
+        Student.prototype.isPrototypeOf(simon); // true<br>
+        <br>
+        typeof Student; // function<br>
+        </code>
+    </p>
+
+    <p>Таким образом, дискуссия трансформировалась в другую: что выбрать, классы или метод Object.create? Наиболее полно её раскрыл 
+        в статье разработчик Eric Elliott, и я рекомендую вам всем ознакомиться с ней.
+    </p>
+
+    
+
+
+</body>
+
+</html>

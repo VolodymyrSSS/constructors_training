@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>constructors-ask8</title>
+    <style>
+    body {
+        background-color: tan;
+        margin: 0;
+        font-family: Verdana, sans-serif;
+    }
+
+    .title {
+        color: red;
+        text-align: center;
+        font-weight:700;
+    }
+
+    .task{
+        width: 50%;
+        padding: 15px 25px;
+        color: navy;
+        background-color: #e2e2e2;
+        margin: 35px auto;
+    }
+
+    .code-ex {
+        width: 50%;
+        font-family: sans-serif;
+        background-color: #bebebe;
+        font-size: large;
+        padding-left: 15px;
+        margin: 0 auto;
+    }
+
+    p {
+        width: 80%;
+        margin: 0 auto;
+    }
+    </style>
+</head>
+<body>
+
+    <h2 class="title">Конструкторы, задача</h2>
+
+    <h4 class="task">Благодаря этому коду пёсик Шарик научится?</h4>
+
+    <p class="code-ex">
+        <code>
+            function Animal() {}<br>
+            <br>
+            Animal.prototype.sleep = function () {
+                return 'zzZZZ'
+            };<br>
+            <br>
+            function Cat() {}<br>
+            <br>
+            Cat.prototype = Animal.prototype;<br>
+            Cat.prototype.meow = function () {
+                return 'Meow, meow, meow'
+            };<br>
+            <br>
+            function Dog() {}<br>
+            <br>
+            Dog.prototype = Animal.prototype;<br>
+            Dog.prototype.woof = function () {
+                return 'Woof, woof, woof'
+            };<br>
+            <br>
+            var sharik = new Dog();<br>
+            <br>
+        </code>
+    </p>
+
+    <script>
+        function Animal() {}
+
+        Animal.prototype.sleep = function () {
+            return 'zzZZZ'
+        };
+
+        function Cat() {}
+
+        Cat.prototype = Animal.prototype;
+        Cat.prototype.meow = function () {
+            return "Meow, meow, meow"
+        };
+
+        function Dog() {}
+
+        Dog.prototype = Animal.prototype;
+        Dog.prototype.woof = function () {
+            return "Woof, woof, woof"
+        };
+
+        var sharik = new Dog();
+
+        console.log(sharik.woof());// Woof, woof, woof
+        console.log(sharik.sleep());// undefined
+        console.log(sharik.meow());
+
+    </script>
+
+    
+    <p>
+        Вариант1:<br>
+        <b>только спать</b><br>
+        Ответ: <b>no</b><br>
+        <br>
+
+        Вариант2:<br>
+        <b>спать и лаять</b><br>
+        Ответ: <b>no</b><br>
+        <br>
+
+        Вариант3:<br>
+        <b>спать, лаять и мяукать</b><br>
+        Ответ: <b>yes</b>: через специальное поле prototype где записана ссылка на хранилище Animal, созданный объект собаки 'sharik' имеeт доступ не только к своему методу woof, но и к методам в конструкторе прототипа Animal и также к методу из другого конструктора Cat<br>
+        <br>
+
+        Вариант4:<br>
+        <b>лаять и мяукать</b><br>
+        Ответ: <b>no</b><br>
+        <br>
+    </p>
+    
+
+</body>
+
+</html>

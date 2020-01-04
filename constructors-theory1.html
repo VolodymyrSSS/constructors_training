@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>constructors_theory1</title>
+    
+    <style>
+    body {
+        background-color: tan;
+        margin: 0;
+        font-family: Verdana, sans-serif;
+    }
+
+    .title {
+        color: red;
+        text-align: center;
+        font-weight:700;
+    }
+
+    .code-ex {
+        width: 50%;
+        font-family: sans-serif;
+        background-color: #bebebe;
+        font-size: large;
+        padding-left: 15px;
+        margin: 0 auto;
+    }
+
+    .accented {
+        color:navy;
+        font-weight:bold;
+    }
+    </style>
+</head>
+<body>
+
+    <h2 class="title">Конструкторы: способы создания конструкторов; решение проблемы<br> 
+        дублирования кода при создании новых объектов
+    </h2>
+    
+    <p>Сегодня мы поговорим с вами о конструкторах. Я расскажу вам о проблеме, которую можно 
+        легко решить при помощи конструкторов, а также покажу способ их создания. Для начала попробуем 
+        сформулировать проблему. Допустим, у нас есть некоторый объект — студент, который хранит его 
+        характеристики и какие-то необходимые действия. Так этот объект хранит имя студента в поле name.
+    </p>
+
+    <p class="code-ex">
+        <code>
+            var john = {<br>
+                <b>name: 'John',</b><br>
+                sleep: function () {}<br>
+            };<br>
+            <br>
+        </code>
+    </p>
+
+    <p>Обычно в программе мы работаем не с одним конкретным объектом, а с целой коллекцией однотипных 
+        объектов. И нам необходимо уметь создавать объекты того же типа. Так, мы захотим создать еще одного 
+        студента, но уже с другим именем Simon. Как мы видим, создание нового объекта такого же типа — 
+        достаточно громоздкая операция, нам приходится заново перечислять все поля, и, более того, заново 
+        писать реализацию методов.
+    </p>
+
+    <p class="code-ex">
+        <code>
+            var simon = {<br>
+                name: 'Simon',<br>
+                sleep: function () {}<br>
+            };<br>
+            <br>
+        </code>
+    </p>
+
+    <p> Таким образом, мы сталкиваемся с проблемой — проблемой дублирования кода 
+    при создании новых объектов. Решить эту проблему очень просто. Достаточно вынести процесс создания 
+    новых объектов в конструктор.
+    </p>
+    
+    <p>Давайте попробуем создать такой конструктор своими руками. Пусть это 
+    будет обычная функция — назовем ее <em>createStudent</em>, которая на вход принимает в качестве параметра имя 
+    студента, а на выходе отдает нам уже готового студента — новый объект с заполненными полями и 
+    необходимыми методами. Таким образом, операция по созданию новых студентов становится очень простой 
+    и буквально занимает одну строчку. Мы можем легко создавать новых студентов.
+    </p>
+
+    <p class="code-ex">
+        <code>
+            function <b>createStudent(name)</b> {<br>
+                return {<br>
+                    <b>name: name,</b><br>
+                    sleep: function () {<br>
+                        console.info('zzzZZ ...'); }<br>
+                };<br>
+            }<br>
+            <br>
+            var john = createStudent('John');<br>
+            console.info(john.name);// John<br>
+            john.sleep(); // zzzZZ...<br>
+            <br>
+            console.info(simon.name); // Simon<br>
+            var simon = createStudent('Simon');<br>
+            simon.sleep(); // zzzZZ...<br>
+            <br>
+        </code>
+    </p>
+
+    <script>
+        function createStudent1(name) {
+            return {
+                name: name,
+                sleep: function () {
+                    console.info('zzzZZ...'); }
+            };
+        }
+            
+        var john = createStudent1('John');
+
+        console.info(john.name);
+        john.sleep();
+        
+        var simon = createStudent1('Simon');
+        
+        console.info(simon.name);
+        simon.sleep();
+    </script>
+        
+    <p>Данное решение достаточно простое, но обладает фатальным недостатком: каждый раз при вызове конструктора 
+        мы будем <b>вновь создавать новую функцию</b>, которая будет реализовывать необходимый нам метод <em>sleep</em>. Это не очень 
+        хорошо, и мы можем достаточно просто решить эту проблему — <b>вынести этот метод в прототип</b>. Для этого создадим 
+        новый объект <em>studentProto</em>, который будет являться прототипом для всех вновь создаваемых студентов, и перенесем 
+        туда наш метод <em>sleep</em>.<br>
+        После этого нам необходимо немножко усложнить код нашего конструктора и добавить туда 
+        вызов метода <em>setPrototypeOf</em>, который будет привязывать новых студентов к уже созданному нами прототипу. 
+        Благодаря таким изменениям мы можем создавать новых студентов, и каждый студент будет иметь доступ к 
+        методам, которые хранятся в прототипе для него.
+    </p> 
+
+    <p class="code-ex">
+        <code>
+            var <b>studentProto</b> = {<br>
+                sleep: function () {<br>
+                  console.info('zzzZZ...- Hi from proto'); }<br>
+            };<br>
+            <br>
+            function createStudent(name) {<br>
+                <b>var student</b> = {<br>
+                  name: name };<br>
+                <br>
+                <b>Object.setPrototypeOf(student, studentProto);</b><br>
+                  return student;<br>
+            }<br>
+            console.info(peter.name); // Peter<br>
+            peter.sleep(); // zzzZZ...- Hi from proto <br>
+            console.info(sally.name); // Sally<br>
+            sally.sleep(); // zzzZZ...- Hi from proto<br>
+        </code>
+    </p>
+
+    <script>
+        var studentProto = { 
+            sleep: function () {
+              console.info('zzzZZ...- Hi from proto'); }
+        };
+
+        function createStudent(name) { 
+          var student = {
+            name: name 
+          };
+
+        Object.setPrototypeOf(student, studentProto);
+          return student;
+        }
+
+        var peter = createStudent('Peter');
+        var sally = createStudent('Sally');
+
+        console.info(peter.name); // Peter
+        peter.sleep(); // zzzZZ...- Hi from proto
+        console.info(sally.name); // Sally
+        sally.sleep(); // zzzZZ...- Hi from proto
+    </script>
+            
+    <p> Мы можем не писать наш конструктор своими руками, а <b>воспользоваться уже готовым механизмом</b>, который 
+        предусмотрен в языке для создания конструкторов.<br>
+        Вообще, любая функция может быть конструктором, если мы вызовем ее при помощи специального оператора <b>new</b>. 
+        Даже  наша функция <em>createStudent</em> может стать конструктором сама, если мы используем этот оператор. Но для 
+        того чтобы все работало как нужно, нам необходимо переписать ее реализацию и оставить в ней всего лишь одну строчку, 
+        а именно: передаваемый аргумент, который будет хранить имя вновь создаваемого студента, присвоить 
+        в поле <em>name</em> у объекта, который хранится по ссылке <em>this</em>. А всю остальную работу за нас сделает 
+        интерпретатор.
+    </p>
+
+    <p>Вначале, перед тем как исполнить код нашего конструктора, он создаст новый объект и присвоит его в переменную <em>this</em>.
+        Далее мы заполним этот объект полями, следует та часть кода, которую мы пишем сами, 
+        и в конце интерпретатор за нас вернет объект, хранящийся по ссылке <em>this</em>. Можно сказать, что при вызове 
+        функции как конструктора с оператором <b>new this</b> внутри этой функции при исполнении будет указывать на 
+        вновь создаваемый объект.
+    </p>
+
+    <p class="code-ex">
+        <code>
+            var lillu = <b>new</b> createStudent('Lillu');<br>
+            <br>
+            function createStudent(name) {<br>
+                this.name = name;<br>
+            };<br>
+            <br>
+            that is working like this:<br>
+            function createStudent(name) {<br>
+              // var this = {};<br> 
+              this.name = name;<br>
+              // return this;<br>
+            }<br>
+        </code>
+    </p>
+            
+    <p>Итак, мы переписали наш конструктор <em>createStudent</em>, оставив в нем всего лишь 
+        одну строчку, и теперь вызываем его при помощи оператора <em>new</em>. Такой код уже будет работать, но читается 
+        он не очень хорошо. Как будто бы мы говорим, что «Billy — это новый создать студент». Давайте сделаем 
+        название функции чуть более семантичной и короткой: выкинем префикс <em>create</em> и оставим <em>Student</em>. Таким 
+        образом переименуем нашу функцию просто в функцию <em>Student</em>. И тогда наш код будет читаться гораздо лучше. 
+        Он будет читаться, как «Billy — это новый студент вот с таким именем».
+    </p> 
+
+    <p class="code-ex">
+        <code>
+            function student(name) {<br>
+              this.name = name;<br>
+            }<br>
+            <br>
+            var billy = <b>new</b> student('Billy');<br>
+        </code>
+    <p>
+
+    <p>Так как функции конструктора — это обычные функции, сообщество разработчиков договорилось следовать некоему соглашению в их именовании, чтобы 
+        отличать вызов обычной функции от вызова функции, когда мы предполагаем ее использовать в качестве 
+        конструктора, а именно: они предлагают <b>именовать функции конструктора с заглавной буквы</b>. Чтобы следовать 
+        этому соглашению, нам необходимо еще раз поменять имя нашего конструктора, а именно записать слово 
+        <em>Student</em> с заглавной буквы.
+    </p> 
+        
+    <p class="code-ex">
+        <code>
+            function <b>S</b>tudent(name) {<br>
+              this.name = name;<br>
+            }<br>
+            <br>
+            var billy = <b>new</b> <b>S</b>tudent('Billy');<br>
+        </code>
+    <p>
+
+    <p>Почему это важно? Что произойдет, если мы попытаемся вызвать случайно, например, 
+        нашу функцию-конструктор как обычную функцию без оператора <em>new</em>?
+    </p>
+
+    <p class="code-ex">
+        <code>
+          var billy = Student('Billy'); - тут нету оператора <b>new</b>
+        </code>
+    </p>
+        
+    <p>В этом случае переданное значение имени 
+        студента не будет записано в новый объект студента, а будет записано в глобальный объект в поле <em>name</em>, так 
+        как, вызывая функцию, <em>this</em> по умолчанию будет ссылаться на глобальный объект.
+    </p> 
+
+    <p class="code-ex">Поле появится в глобальном объекте!<br>
+        <code>
+            window.name === 'Billy'; // true
+        </code>
+    </p>
+        
+    <p>Мы можем следовать соглашению и дополнительно включить строгий режим интерпретации, который защитит нас от такого поведения. 
+        В этом случае <em>this</em> будет иметь значение <em>undefined</em>, и мы не сможем присвоить в него никакие поля.
+    </p>
+       
+    <p class="code-ex">use strict;<br>
+        <code>
+            window.name === 'Billy'; // TypeError: Cannot set property 'name' of undefined
+        </code>
+    </p>
+
+    <p> Давайте попробуем вмешаться в работу конструктора, в работу интерпретатора и как-то поменять поведение конструктора. 
+        Например, мы захотим сами возвращать какой-то сконструированный объект. Можем ли мы это сделать? В данном 
+        случае интерпретатор нам полностью доверяет и вернет тот объект, который мы возвращаем при помощи оператора 
+        <em>return</em>.
+    </p>
+
+    <script>
+        function Student3(name) {
+          this.name = name;
+            return {
+                name: 'Muahahahahaha!'
+            };
+        }
+
+        var mery = new Student3('Mery');
+
+        console.info(mery.name); // Muahahahahaha<br>
+    </script>
+
+    <p class="code-ex">
+        <code>
+            function Student(name) {<br>
+                this.name = name;<br>
+                <b>return {<br>
+                name: 'Muahahahahaha!'};</b><br>
+            }<br>
+            <br>
+            var mery = new Student('Mery');<br>
+            console.info(mery.name); // Muahahahahaha<br>
+        </code>
+    </p>
+        
+    <p>Но если мы попытаемся вернуть из конструктора какое-то примитивное значение — число, строку или <em>null</em>, 
+        в этом случае интерпретатор просто проигнорирует эту строку и будет работать как раньше: он будет 
+        возвращать вновь создаваемый объект.
+    </p>
+
+    <p class="code-ex">
+        <code>
+            function Student(name) {<br>
+                this.name = name;<br>
+                <b>return null;</b> // Evil mode on!<br>
+            }<br>
+            <br>
+            var meny = new Student('Oleksei');<br>
+            <br>
+            console.info(oleksei.name); // Oleksei<br>
+        </code>
+    </p>
+
+    <script>
+        function Student2(name) {
+          this.name = name;
+          return null; // Evil mode on!
+        };
+            
+        var oleksei = new Student2('Oleksei');
+            
+        console.info(oleksei.name); // Oleksei
+    </script>
+    
+
+</body>
+
+</html>

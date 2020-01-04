@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>constructors-ask1</title>
+    <style>
+    body {
+        background-color: tan;
+        margin: 0;
+        font-family: Verdana, sans-serif;
+    }
+
+    .title {
+        color: red;
+        text-align: center;
+        font-weight:700;
+    }
+
+    .code-ex {
+        width: 50%;
+        font-family: sans-serif;
+        background-color: #bebebe;
+        font-size: large;
+        padding-left: 15px;
+        margin: 0 auto;
+    }
+
+    .task{
+        width: 50%;
+        padding: 15px 25px;
+        color: navy;
+        background-color: #e2e2e2;
+        margin: 35px auto;
+    }
+
+    .code-ex {
+        width: 50%;
+        font-family: sans-serif;
+        background-color: #bebebe;
+        font-size: large;
+        padding-left: 15px;
+        margin: 0 auto;
+    }
+
+    p {
+        width: 80%;
+        margin: 0 auto;
+    }
+    </style>
+</head>
+<body>
+
+    <h2 class="title">Конструкторы, задача</h2>
+
+    <h4 class="task">Выберите переменные, значением которых в итоге будет объект?</h4>
+
+    <p class="code-ex">
+        <code>
+            function Cat(name) {<br>
+                this.name = name;<br>
+            }<br>
+            <br>
+            function Dog(name) {<br>
+                return { name: name };<br>
+            }<br>
+            <br>
+            function Fish(name) {<br>
+                this.name = name;<br>
+                return null;<br>
+            }<br>
+            <br>
+            <b>var guppie = new Fish('Guppie');<br>
+            var chappie = new Dog('Chappie');<br>
+            var swittie = new Cat('Swittie');<br>
+            var misty = Cat('Misty');</b><br>
+            <br>
+        </code>
+    </p>
+
+    <script>
+        function Cat(name) {
+            this.name = name;
+        }
+
+        function Dog(name) {
+            return { name: name };
+        }
+
+        function Fish(name) {
+            this.name = name;
+            return null;
+        }
+
+        var guppie = new Fish('Guppie');
+        var chappie = new Dog('Chappie');
+        var swittie = new Cat('Swittie');
+        var misty = Cat('Misty');
+
+        console.log(guppie);
+        console.log(chappie);
+        console.log(swittie);
+        console.log(misty);
+    </script>
+
+    
+    <p>
+        Вариант1: <b>chappie</b><br>
+        Ответ: <b>yes</b>: это конструктором для создания новых объектов по типу 'Dog' который на вход принимает имя этого собаки и записывает его в поле 'name'. Интерпретатор возвращает новый объект, хранящийся по ссылке this.
+        <br>
+        <br>
+        Вариант2: <b>misty</b><br>
+        Ответ: <b>no</b>: переданное значение имени кота не будет записано в новый объект кота, а будет записано в глобальный объект в поле name, так как, вызывая функцию, this по умолчанию будет ссылаться на глобальный объект.
+        <br>
+        <br>
+        Вариант3: <b>guppie</b><br>
+        Ответ: <b>yes</b> несмотря на то, что функция возвращает null, интерпретатор проигнорирует эту строку, если мы используем её как конструктор.
+        <br>
+        <br>     
+        Вариант4: <b>swittie</b><br>
+        Ответ: <b>yes</b>: - это конструктор для создания новых объектов по типу 'Cat', который на вход принимает имя этого кота и записывает его в поле 'name'. Здесь this ссылается на имя конструктора по типу 'Cat'
+        <br>
+    </p>
+    
+
+</body>
+
+</html>

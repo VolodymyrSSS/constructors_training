@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>constructors_theory2</title>
+    <style>
+    body {
+        background-color: tan;
+        margin: 0;
+        font-family: Verdana, sans-serif;
+    }
+
+    .title {
+        color: red;
+        text-align: center;
+        font-weight:700;
+    }
+
+    .code-ex {
+        width: 50%;
+        font-family: sans-serif;
+        background-color: #bebebe;
+        font-size: large;
+        padding-left: 15px;
+        margin: 0 auto;
+    }
+
+    .accented {
+        color:navy;
+        font-weight:bold;
+    }
+    </style>
+</head>
+<body>
+
+    <h2 class="title">Конструкторы:  автоматическая привязка прототипа для всех<br>
+        вновь создаваемых объектов при помощи конструктора
+    </h2>
+
+    <p>Допустим, у нас есть конструктор студентов, который на вход принимает имя этого студента 
+        и записывает его в поле name.
+    </p>
+
+    <p class="code-ex">
+        <code>
+            function Student(name) {<br>
+                this.name = name;<br>
+            };<br>
+            <br>
+        </code>
+    </p>
+
+    <script>
+        function Student(name) {
+            this.name = name;
+        };
+    </script>
+        
+    <p>Помимо каких-то характеристик для студента, нам хотелось бы добавить в него несколько 
+    методов и логично было бы хранить их в прототипе. Для того чтобы автоматически привязывать этот прототип для всех 
+    вновь создаваемых студентов, нам необходимо поместить его в <b>специальное хранилище</b>. Данное хранилище есть у 
+    каждой функции конструктора. И оно <b>расположено в специальном поле <em>prototype</em></b>.
+    </p>
+
+    <p class="code-ex">
+        <code>
+            Student<b>.prototype</b> = {<br>
+                sleep: function () {
+                    return 'zzZZZ...';
+                }<br>
+            };<br>
+            <br>
+        </code>
+    </p>
+
+    <script>
+        Student.prototype = {
+            sleep: function () {
+                return 'zzZZZ...';
+            }
+        };
+    </script>
+
+        
+    <p> 
+    Конструктор в момент исполнения выполняет дополнительный шаг, который привязывает тот объект, который мы поместили 
+    в хранилище, в качестве прототипа для всех  вновь создаваемых объектов, в нашем случае – для всех студентов.<br>
+    </p>
+
+    <p class="code-ex">
+        <code>
+        function Student(name) {<br>
+            // var this = {};<br>
+            this.name = name;<br>
+            <b>// Object.setPrototypeOf(this, Student.prototype);</b><br>
+            // return this;<br>
+        }
+        </code>
+    </p>
+
+    <p>И создавая новых студентов при помощи нашего конструктора, мы увидим, что у каждого из них внутреннее поле <em>prototype</em> 
+    будет ссылаться на тот объект, который мы ранее поместили в хранилище. Данное хранилище может вам напомнить другое 
+    хранилище, а именно то, которое расположено в специальном поле <em>prototype</em> функции Object - Прямо как Object.prototype!. Напомню, 
+    что это хранилище хранит общие методы, полезные для всех объектов. И более того, автоматически каждый создаваемый объект в 
+    JavaScript имеет в качестве прототипа объект этого хранилища.
+    </p>
+
+    <p class="code-ex">
+        <code>
+            var billy = new Student('Billy');<br>
+            одинаково как:<br>
+            var billy = {<br>
+                name: 'Billy',<br>
+                [[Prototype]]: 'Student.prototype'<br>
+            };<br>
+            <br>
+            console.log(billy.name); // Billy<br>
+            console.log(billy.sleep()); // zzZZ...<br>
+        </code>
+    </p>
+
+    <script>
+        var billy = new Student("Billy");
+
+        billy.__proto__ = Student.prototype;
+
+        console.log(billy.name); // Billy
+        console.log(billy.sleep()); // zzZZ...
+    </script>
+
+    <p>Изначально нам было не очень очевидно, каким же образом осуществлялась данная привязка, 
+        ведь мы создавали объекты при помощи литеральной конструкции, а не конструктора и оператора new. 
+        Но на самом деле под капотом интерпретатор вызывает тот же самый конструктор Object оператором new, 
+        и все становится на свои места.
+    </p>
+    
+    <p class="code-ex">
+        <code>
+            Object.prototype = {<br>
+                toString: function () {},<br>
+                hasOwnProperty: function () {}<br>
+            };<br>
+            var billy = { name: 'Billy' };<br>
+            var billy = new Object({ name: 'Billy' });<br>
+            <br>
+        </code>
+    </p>
+    
+    <p>Давайте подробнее поговорим про <b>специальное поле .prototype</b>.
+    Мы выяснили, что оно есть у каждой функции, даже такой бесполезной как эта.</p>
+    
+    <p class="code-ex">
+        <code>
+            function kawabanga(name) {<br>
+                console.info('kawabanga!');<br>
+            }<br>
+        </code>
+    <p>
+
+    <p>Оно хранит некоторый объект и этот объект имеет смысл только, когда мы вызываем функцию как 
+        конструктор. Изначально этот объект не пустой и хранит специальное поле – <b><em>.constructor</em></b>.
+    </p> 
+    
+    <p>Давайте поговорим о нем подробнее. Оно неперечисляемое и хранит ссылку на саму эту функцию. 
+        Таким образом, обращаясь к этому полю, мы можем получить доступ к конструктору.<br> 
+        Для чего это может быть полезно? Например, мы можем выяснить имя конструктора конкретного объекта.<br>
+        Eсли мы сконструировали нового студента Simon на основе конструктора 'Student2', мы можем обратиться к этому полю у 'Simon'. 
+        У 'Simon' этого поля, естественно, нет, но оно есть в прототипе, который, как мы знаем, изначально хранится в 
+        хранилище <em>Student2.prototype</em>.
+    </p>
+
+    <script>
+        function Student2(name) {
+            this.name = name;
+        }
+
+        var simon = new Student2("Simon");
+
+        console.info(Student2.prototype.constructor === Student2); // true
+
+    </script>
+
+    <p class="code-ex" style="width:60%">
+        <code>
+            function Student2(name) {<br>
+                this.name = name;<br>
+            }<br>
+            <br>
+            var simon = new Student2("Simon");<br>
+            <br>
+            console.info(Student2.prototype.constructor === Student2); // true<br>
+            <br>
+        </code>
+    <p>
+
+    <p> 
+        И так как данное поле хранит ссылку на функцию, мы можем посмотреть имя этой функции, обратившись к полю 
+        <em>name</em>. Таким образом, мы выясним, что 'Simon' в качестве конструктора, имеет функцию с названием 'Student2'.
+    </p>
+
+    <script>
+        console.info(simon.constructor.name); // Student2
+    </script>
+
+    <p class="code-ex">
+        <code>
+            console.info(simon.constructor.name); // Student2<br>
+        </code>
+    <p>
+
+    <p>Важно помнить о поле <em>.constructor</em>, так как мы очень легко можем его перезаписать. И в случае с 'Billy" 
+        мы это и сделали. Мы просто поместили в поле <em>.prototype</em>, в это хранилище, новый объект, тем самым уничтожив 
+        поле <em>.constructor</em>.<br>
+    </p>
+
+    <script>
+        console.info(billy.constructor === Student); // false
+    </script>
+
+    <p class="code-ex" style="width: 60%">
+        <code>
+            function Student(name) {<br>
+                this.name = name;<br>
+            }<br>
+            var billy = new Student('Billy');<br>
+            <br>
+            <b>Student.prototype</b> = { - вот сдесь мы перезаписали поле '.constructor'<br>
+              sleep: function () {<br>
+                return 'zzZZZ...'}<br>
+            }<br>
+            <br>
+            console.info(billy.constructor === Student); // false<br>
+            <br>
+        </code>
+    <p>
+
+    <p>Чтобы этого не произошло, достаточно не перезаписывать тот объект, который хранится изначально в этом 
+        хранилище, а дополнять его новыми методами, как с 'Simon':
+        <b><em>Student2.prototype.sleep = function () {};</em></b><br>  
+    </p>
+
+    <script>
+        Student2.prototype.eat = function () {
+            return "nyam, nyam ... Oh, das schmeckt mir gut!";
+        };
+
+        Student2.prototype.run = function () {
+            return "run, jump, run, jump ...";
+        };
+        console.info(simon.name);
+        console.info(Student2.prototype.eat());
+        console.info(Student2.prototype.run());
+    </script>
+
+    <p class="code-ex" style="width: 70%;">
+        <code>
+            function Student2(name) {<br>
+                this.name = name;<br>
+            }<br>
+            var simon = new Student2("Simon");<br>
+            <br>
+            <b>Student2.prototype.eat</b> = function () { - дополнили изначальный объект методом 'eat'<br>
+                return "nyam, nyam ... Oh, das schmeckt mir gut!";<br>
+            };<br>
+            <br>
+            <b>Student2.prototype.run</b> = function () { - дополнили изначальный объект методом 'run'<br>
+                return "run, jump, run, jump ...";<br>
+            };<br>
+            <br>
+            console.info(simon.name);// Simon<br>
+            console.info(Student2.prototype.eat());// nyam, nyam ... Oh, das schmeckt mir gut!<br>
+            console.info(Student2.prototype.run());// run, jump, run, jump ...<br>
+        </code>
+    </p>
+
+    <p>Таким образом,  мы получим на основе этого конструктора новые объекты, которые будут иметь доступ как к методам 
+        из прототипа, так и к специальному полю <em>.constructor</em>.
+    </p>
+
+
+</body>
+
+</html>

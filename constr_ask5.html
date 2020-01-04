@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>constructors-ask5</title>
+    <style>
+    body {
+        background-color: tan;
+        margin: 0;
+        font-family: Verdana, sans-serif;
+    }
+
+    .title {
+        color: red;
+        text-align: center;
+        font-weight:700;
+    }
+
+    .task{
+        width: 50%;
+        padding: 15px 25px;
+        color: navy;
+        background-color: #e2e2e2;
+        margin: 35px auto;
+    }
+
+    .code-ex {
+        width: 50%;
+        font-family: sans-serif;
+        background-color: #bebebe;
+        font-size: large;
+        padding-left: 15px;
+        margin: 0 auto;
+    }
+
+    p {
+        width: 80%;
+        margin: 0 auto;
+    }
+    </style>
+</head>
+<body>
+
+    <h2 class="title">Конструкторы, задача</h2>
+
+    <h4 class="task">Выберите верные способы переопределения метода getName на уровне прототипа Cat.prototype.</h4>
+
+    <p class="code-ex">
+        <code>
+            function Animal(name) {<br>
+                this.name = name;<br>
+            }<br>
+            <br>
+            Animal.prototype.getName = function () {<br>
+                return this.name;<br>
+            }<br>
+            <br>
+            Cat.prototype = Object.create(Animal.prototype);<br>
+            <br>
+        </code>
+    </p>
+
+    <script>
+        function Cat(name) { 
+          this.name = name;
+        }
+
+        function Animal(name) {
+          this.name = name;
+        }
+
+        Animal.prototype.getName = function () {
+            return this.name;
+        }
+
+        Cat.prototype = Object.create(Animal.prototype);
+
+        Cat.prototype.getName = function () {
+          return 'Cat is ' + Animal.prototype.getName.call(this);
+        };
+
+        var mercy = new Cat("Mercy");
+
+        console.log(mercy.getName());
+    </script>
+
+    
+    <p>
+        Вариант1:<br>
+        <b>Cat.prototype.getCatName = function () {<br>
+            return 'Cat is ' +  this.getName();<br>
+        };</b><br>
+        Ответ: <b>acceptable</b>: допустимо, здесь но можно сохранить оригинальное название метода getName, использовав другой способ.<br>
+        <br>
+
+        Вариант2:<br>
+        <b>Cat.prototype.getName = function () {<br>
+            return 'Cat is ' + Animal.prototype.getName.call(this);<br>
+        };</b><br>
+        Ответ: <b>yes</b>: здесь напрямую вызываем в затеняющем методе затеняемый и передаём туда текущий контекст; (здесь Animal.prototype.getName - затеняемый метод)<br>
+        <br>
+
+        Вариант3:<br>
+        <b>Cat.prototype.getName = function () {<br>
+            return 'Cat is ' + this.getName();<br>
+        };</b><br>
+        Ответ: <b>no</b>: метод будет вызывать сам себя и получим: 'RangeError: Maximum call stack size exceeded'<br>
+        <br>
+        
+    </p>
+    
+
+</body>
+
+</html>

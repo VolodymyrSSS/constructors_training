@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>constructors-ask7</title>
+    <style>
+    body {
+        background-color: tan;
+        margin: 0;
+        font-family: Verdana, sans-serif;
+    }
+
+    .title {
+        color: red;
+        text-align: center;
+        font-weight:700;
+    }
+
+    .task{
+        width: 50%;
+        padding: 15px 25px;
+        color: navy;
+        background-color: #e2e2e2;
+        margin: 35px auto;
+    }
+
+    .code-ex {
+        width: 50%;
+        font-family: sans-serif;
+        background-color: #bebebe;
+        font-size: large;
+        padding-left: 15px;
+        margin: 0 auto;
+    }
+
+    p {
+        width: 80%;
+        margin: 0 auto;
+    }
+    </style>
+</head>
+<body>
+
+    <h2 class="title">Конструкторы, задача</h2>
+
+    <h4 class="task">Какое имя созданного кота будет выведено на экран?</h4>
+
+    <p class="code-ex">
+        <code>
+            function Cat (name) {<br>
+                this.name = null;<br>
+                return {<br>
+                  name: name }<br>
+              }<br>
+              <br>
+              var barsik = new Cat('Barsik');<br>
+              <br>
+              console.log(barsik.name);<br>
+            <br>
+        </code>
+    </p>
+
+    <script>
+        function Cat (name) {
+          this.name = null;
+          return {
+            name: name
+          }
+        }
+
+        var barsik = new Cat('Barsik');
+
+        console.log(barsik.name);
+    </script>
+
+    
+    <p>
+        Вариант1:<br>
+        <b>null</b><br>
+        Ответ: <b>no</b>: мы пытаемся вернуть из конструктора примитивное значение null (или число, строку), в этом случае интерпретатор просто проигнорирует эту строку и будет работать как раньше: он будет возвращать вновь создаваемый объект<br>
+        <br>
+
+        Вариант2:<br>
+        <b>Barsic</b><br>
+        Ответ: <b>yes</b>: в этом случае интерпретатор проигнорирует null и возвратит вновь создаваемый объект c полем name где записано 'Barsik'<br>
+        <br>
+
+        Вариант3:<br>
+        <b>Произойдёт ошибка так как this ссылается на undefined и мы не сможем обратится к полю name у undefined</b><br>
+        Ответ: <b>no</b>: хотя this ссылается на поле в котором записано null, но интерпретатор проигнорирует его и возвратит создаваемый объект Cat c полем name в котором записан 'Barsik'<br>
+        <br>
+    </p>
+    
+
+</body>
+
+</html>

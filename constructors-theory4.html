@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>constructors_theory4</title>
+    <style>
+    body {
+        background-color: tan;
+        margin: 0;
+        font-family: Verdana, sans-serif;
+    }
+
+    .title {
+        color: red;
+        text-align: center;
+        font-weight:700;
+    }
+
+    .code-ex {
+        width: 50%;
+        font-family: sans-serif;
+        background-color: #bebebe;
+        font-size: large;
+        padding-left: 15px;
+        margin: 0 auto;
+    }
+
+    </style>
+</head>
+<body>
+
+    <h2 class="title">Конструкторы: инспектирование связей между объектами, прототипами и конструкторами</h2>
+
+    <p> С целью проверки связей между объектами, прототипами и конструкторами есть несколько способов.
+        С одним из способов вы уже знакомы — это метод <em><b>getPrototypeOf</b></em> - на вход он 
+        принимает в себя объект, а на выходе дает ссылку на прототип для этого объекта.
+    </p>
+
+    
+    <script>
+        var student1 = {
+          name: 'Billy',
+          // [[Prototype]]: 'person'
+        };
+
+        var person1 = {
+            type: 'human',
+            getName: function () {}
+        }
+
+        student1.__proto__ = person1;
+
+        console.log(Object.getPrototypeOf(student1) === person1); // true
+    </script>
+       
+    <p class="code-ex">
+        <code>
+            var student = {<br>
+              name: 'Billy',<br>
+              // [[Prototype]]: 'person'<br>
+            };<br>
+            <br>
+            var person = {<br>
+              type: 'human',<br>
+              getName: function () {}<br>
+            }<br>
+            <br>
+            Object.getPrototypeOf(student) === person; // true<br>
+        </code>
+    </p>
+
+    <p>В данном случае у нас есть объект студента, в качестве прототипа для которого выступает объект person. 
+        Вызвав метод <em>getPrototypeOf</em> и передав туда ссылку на объект студента, мы на выходе получим 
+        ссылку на объект person.
+    </p>
+
+    <p>Следующий способ инспектирования связей между объектами и прототипом предлагает нам 
+        метод <em><b>isPrototypeOf</b></em>. Давайте посмотрим, как он работает. Допустим, у нас есть некий 
+        конструктор студентов, который на вход принимает имя студента и сохраняет его в поле name для каждого 
+        студента. Далее, мы хотим к каждому студенту привязать некоторый прототип. Мы помещаем этот прототип 
+        в специальное поле <em>Prototype</em>, в хранилище, и делаем его объектом на основе другого хранилища 
+        — конструктора person при помощи метода <em>create</em>. Далее, мы в наше хранилище добавляем 
+        специфичный для студентов метод <em>sleep</em> и восстанавливаем конструктор.<br>
+        Попробуем теперь создать нашего студента и воспользоваться для проверки связи между созданным 
+        студентом и его прототипом методом <em>isPrototypeOf</em>. 
+    </p>
+
+    <script>
+        function Student2(name) {
+          this.name = name;
+        }
+
+        function Person2(name) {
+          this.name = name;
+        }
+
+        Student2.prototype = Object.create(Person2.prototype);
+        Student2.prototype.sleep = function () {};
+        Student2.prototype.constructor = Student2;
+
+        var billy = new Student2('Billy');
+        
+        console.log(Student2.prototype.isPrototypeOf(billy)); // true
+        console.log(Person2.prototype.isPrototypeOf(billy)); // true
+        console.log(Object.prototype.isPrototypeOf(billy)); // true
+    </script>
+
+    <p class="code-ex" style="width:90%">
+        <code>
+            function Student(name) {<br>
+              this.name = name;}<br>
+            <br>
+            function Person(name){ --> это прототип для Student<br>
+                this.name = name;}<br>
+            <br>
+            Student.prototype = Object.create(Person.prototype); --> каждому студенту привязываем прототип person<br>
+            Student.prototype.sleep = function () {}; --> добавляем специфичный для студентов метод<br>
+            Student.prototype.constructor = Student; --> здесь восстанавливаем конструктор<br>
+            <br>
+            var billy = new Student('Billy');<br>
+            Student.prototype.isPrototypeOf(billy); // true<br>
+            Person.prototype.isPrototypeOf(billy); // true<br>
+            Object.prototype.isPrototypeOf(billy); // true<br>
+        </code>
+    </p>
+
+    <p>Данный метод отвечает на вопрос: 
+        «Является ли объект прототипом для того объекта, который мы передаем в качестве аргументов?» 
+        И действительно, для billy прототипом будет являться тот объект, который мы поместили в 
+        хранилище конструктора, — в поле Prototype конструктора Student. Более того, данный метод 
+        позволяет инспектировать не только прямую связь, но и связь конечного объекта с одним из 
+        прототипов цепочки. Таким образом, он даст утвердительный ответ и на вопрос: «Является ли объект, 
+        который лежит в хранилище конструктора person, прототипом для billy?» И действительно, является. 
+        Более того, он утвердительно ответит и на вопрос: «Является ли глобальный прототип для всех объектов 
+        прототипом для billy?» Очевидно, это так. 
+    </p>
+
+    <p>Следующий способ инспектирования связей между объектами и конструкторами — специальный оператор 
+        <em><b>instanceof</b></em>. Он позволяет ответить на вопрос: «Является ли объект объектом 
+        определенного конструктора?» В данном случае мы создали нового студента simon на основе конструктора 
+        <em>Student</em> и проверяем, является ли simon объектом этого конструктора. Да, действительно 
+        является.
+    </p>
+
+    <script>
+        function Student3(name) {
+            this.name = name;
+        };
+
+      Student3.prototype = Object.create(Person2.prototype);
+      Student3.prototype.sleep = function () {};
+      Student3.prototype.constructor = Student3;
+      
+      var simon = new Student3('Simon');
+      console.log(simon instanceof Student3); // true
+      console.log(simon instanceof Person2); // true
+      console.log(simon instanceof Object); // true
+    </script>
+
+    <p class="code-ex">
+        <code>
+            function Student(name) {<br>
+              this.name = name;<br>
+            }<br>
+            Student.prototype = Object.create(Person.prototype);<br>
+            Student.prototype.sleep = function () {};<br>
+            Student.prototype.constructor = Student;<br>
+            <br>
+            var simon = new Student('Simon');<br>
+            simon instanceof Student; // true<br>
+            simon instanceof Person; // true<br>
+            simon instanceof Object; // true<br>
+        </code>
+    </p>
+
+    <p>Но этот оператор работает несколько сложнее, и он ответит утвердительно на следующий вопрос, 
+        что simon является и объектом конструктора Person, хотя напрямую это не так. Но можно заметить, 
+        что хранилище, связанное с конструктором Person, лежит в цепочке прототипов до simon. Если мы 
+        немножечко переформулируем то, как работает этот оператор, все встанет на свои места. Можно 
+        сказать, что он отвечает на вопрос: «Является ли simon, например, студентом?» Да, действительно 
+        является. Или: «Является ли simon личностью?» И это тоже так. Более того, simon, конечно же, 
+        является объектом — тоже правда.
+    </p>
+
+    <p> Давайте разберем, как работает оператор <em>instanceof</em>.<br>
+        Например, как он проверяет, связаны ли между собой объект simon с конструктором Person. 
+        Вначале он проверяет, является ли прототипом для simon объект, который хранится в хранилище этого 
+        конструктора. И это не так.
+    </p>
+
+    <p class="code-ex" style="width:65%">
+        <code>
+            simon instanceof Person;<br>
+            simon.__proto__ === Person.prototype; // false -> Может, там null?
+        </code>
+    </p>
+        
+    <p>Тогда он проверяет следующую гипотезу: «А, может быть, прототипа у 
+        simon совсем нет, и там хранится значение null?»
+    </p>
+
+    <p class="code-ex">
+        <code>
+            simon.__proto__ === null; // false -> Идём дальше по цепочке
+        </code>
+    </p>
+
+    <p>Эта гипотеза также не подтверждается, и тогда он 
+        идет по цепочке прототипов. Он проверяет, является ли прототип прототипа simon объектом, который 
+        хранится в хранилище конструктора Person. На этот раз гипотеза подтверждается, и в этом случае данный 
+        оператор отвечает нам true.
+    </p>
+
+    <p class="code-ex">
+        <code>
+            simon.__proto__.__proto__ === Person.prototype; // true -> Возвращаем true
+        </code>
+    </p>
+
+    <p>Если мы попробуем проинспектировать объект с самой короткой цепочкой прототипов. Напоминаю, чтобы 
+        создать такой объект, нам необходимо воспользоваться методом create и передать туда не объект, а null.
+    </p>
+
+    <p class="code-ex">
+        <code>
+            var foreverAlone = Object.create(null);<br>
+            foreverAlone instanceof Object; // false
+        </code>
+    </p>
+
+    <p>
+        В этом случае оператор instanceof возвращает нам false, и это немножко противоречит здравому смыслу. 
+        Вроде как мы создаем объект и проверяем, что этот объект — это действительно объект, но оператор 
+        <em>instanceof</em> возвращает нам false. Если мы еще раз посмотрим, как работает этот оператор, все 
+        встанет на свои места. Итак, в первую очередь, он проверяет, является ли прототипом для нашего одинокого 
+        объекта глобальный прототип для всех объектов. Очевидно, это не так.<br>
+    </p>
+
+    <p class="code-ex" style="width:70%">
+        <code>
+            Object.create(null).__proto__ === Object.prototype; // false
+        </code>
+    </p>
+
+    <p>Тогда он проверяет: «Возможно, у нашего одинокого объекта совсем нет прототипа, и во внутреннем поле 
+        prototype лежит значение null?»<br>
+        И эта гипотеза подтверждается.
+    </p>
+
+    <p class="code-ex" style="width:70%">
+        <code>
+            Object.create(null).__proto__ === null; // true -> Так и есть, возращаем false!
+        </code>
+    </p>
+
+    <p></p>Ведь мы сами создали такой объект, передав метод create(null). 
+    В этом случае оператор <em>instanceof</em> при положительном подтверждении такой гипотезы 
+    возвращает нам false.
+
+</body>
+
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>constructors-ask3</title>
+    <style>
+    body {
+        background-color: tan;
+        margin: 0;
+        font-family: Verdana, sans-serif;
+    }
+
+    .title {
+        color: red;
+        text-align: center;
+        font-weight:700;
+    }
+
+    .task{
+        width: 50%;
+        padding: 15px 25px;
+        color: navy;
+        background-color: #e2e2e2;
+        margin: 35px auto;
+    }
+
+    .code-ex {
+        width: 50%;
+        font-family: sans-serif;
+        background-color: #bebebe;
+        font-size: large;
+        padding-left: 15px;
+        margin: 0 auto;
+    }
+
+    p {
+        width: 80%;
+        margin: 0 auto;
+    }
+    </style>
+</head>
+<body>
+
+    <h2 class="title">Конструкторы, задача</h2>
+
+    <h4 class="task">Выберите верные способы построения цепочки прототипов для объектов создаваемых конструктором Cat.</h4>
+
+    <p class="code-ex">
+        <code>
+            function Animal() {}<br>
+            Animal.prototype.sleep = function();<br>
+            <br>
+            function Cat(name) {}<br>
+            <br>
+        </code>
+    </p>
+
+    <script>
+        function Animal() {};
+        Animal.prototype.sleep = function(){};
+
+        function Cat(name) {}
+    </script>
+
+    
+    <p>
+        Вариант1:<br>
+        <b>Cat.prototype = Animal.prototype;<br>
+            Cat.prototype.meow = function () {};</b><br>
+        Ответ: <b>no</b>: тут цепочка прототипов имеет двустороннюю направленость и метод meow появится у всех животных, а не только у кошек.<br>
+        <br>
+
+        Вариант2:<br>
+        <b>Cat.prototype = Object.create(Animal.prototype);<br>
+            Cat.prototype.meow = function () {};</b><br>
+        Ответ: <b>yes</b>: тyt Object.create(Animal.prototype) создаёт объект, прототипом которого становится объект, переданный Animal.prototype.<br>
+        <br>
+
+        Вариант3:<br>
+        <b>Cat.prototype = Object.create(Animal);<br>
+            Cat.prototype.meow = function () {};</b><br>
+        Ответ: <b>no</b>: В create можно передать либо объект, либо null, но не функцию.<br>
+        <br>
+        
+    </p>
+    
+
+</body>
+
+</html>
